@@ -6,14 +6,38 @@ const config: StorybookConfig = {
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
   ],
   "addons": [
-    "@storybook/addon-webpack5-compiler-swc",
     "@storybook/addon-essentials",
-    "@storybook/addon-onboarding",
     "@storybook/addon-interactions"
   ],
   "framework": {
     "name": "@storybook/react-webpack5",
     "options": {}
-  }
+  },
+  "webpackFinal": async (config) => {
+    config.module = config.module || {};
+    config.module.rules = config.module.rules || [];
+    
+    config.module.rules.push({
+      test: /\.(ts|tsx)$/,
+      use: [
+        {
+          loader: require.resolve('babel-loader'),
+          options: {
+            presets: [
+              require.resolve('@babel/preset-env'),
+              require.resolve('@babel/preset-react'),
+              require.resolve('@babel/preset-typescript'),
+            ],
+          },
+        },
+      ],
+    });
+    
+    config.resolve = config.resolve || {};
+    config.resolve.extensions = config.resolve.extensions || [];
+    config.resolve.extensions.push('.ts', '.tsx');
+    
+    return config;
+  },
 };
 export default config;
